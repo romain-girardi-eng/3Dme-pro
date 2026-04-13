@@ -88,10 +88,11 @@ export interface MotionConfig {
 
 export interface MouseConfig {
   enabled: boolean;
-  force: number;           // 0–2
+  force: number;           // 0–2 (user-chosen base)
   radius: number;          // 0–3
   mode: MouseMode;
   handTracking: boolean;   // use webcam hand landmarks instead of mouse
+  handPinch: number;       // runtime 0–1 from hand tracking hook (not persisted-idle)
 }
 
 export interface AudioLevels {

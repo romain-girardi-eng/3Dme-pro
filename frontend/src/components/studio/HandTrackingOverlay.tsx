@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Hand, Loader2 } from 'lucide-react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { useHandTracking } from '@/hooks/useHandTracking';
@@ -7,19 +7,16 @@ import { cn } from '@/lib/cn';
 /**
  * When hand tracking is enabled:
  *  - show a mirrored webcam preview bottom-right
- *  - dispatch synthetic pointermove events on the canvas so UltimateParticles' existing
- *    listener picks up the finger-tip position like a real mouse
- *  - pinch strength smoothly scales mouse.force between its stored value and 2× of it
+ *  - dispatch synthetic mousemove events on the canvas so UltimateParticles' existing
+ *    listener picks up the index-finger position like a real mouse
+ *  - pinch strength is written to scene.mouse.handPinch (never to .force) —
+ *    RendererSwitcher computes the effective force, so no write-read render loop
  */
 export const HandTrackingOverlay = () => {
   const handEnabled = useSceneStore((s) => s.scene.mouse.handTracking);
-  const baseForce = useSceneStore((s) => s.scene.mouse.force);
   const updateMouse = useSceneStore((s) => s.updateMouse);
   const { active, starting, error, cursor, pinch, videoRef } = useHandTracking(handEnabled);
-  const lastForceRef = useRef(baseForce);
 
-  // Drive cursor position via synthetic mousemove on the canvas element
-  // (UltimateParticles listens to 'mousemove' on its own domElement).
   useEffect(() => {
     if (!handEnabled || !cursor) return;
     const canvas = document.querySelector<HTMLCanvasElement>('canvas');
@@ -37,21 +34,12 @@ export const HandTrackingOverlay = () => {
     );
   }, [cursor, handEnabled]);
 
-  // Pinch modulates the force uniform live (multiplies base force up to 2×).
+  // Push pinch into the store as its own field — renderer reads it additively.
+  // Quantize to 0.02 steps so we don't kick a store update on every frame.
   useEffect(() => {
-    if (!handEnabled) {
-      if (lastForceRef.current !== baseForce) {
-        updateMouse({ force: baseForce });
-        lastForceRef.current = baseForce;
-      }
-      return;
-    }
-    const boosted = Math.round(baseForce * (1 + pinch) * 100) / 100;
-    if (boosted !== lastForceRef.current) {
-      lastForceRef.current = boosted;
-      updateMouse({ force: boosted });
-    }
-  }, [pinch, handEnabled, baseForce, updateMouse]);
+    const next = handEnabled ? Math.round(pinch * 50) / 50 : 0;
+    updateMouse({ handPinch: next });
+  }, [pinch, handEnabled, updateMouse]);
 
   if (!handEnabled) return null;
 

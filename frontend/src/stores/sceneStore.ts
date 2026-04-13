@@ -71,6 +71,7 @@ export const DEFAULT_SCENE_STATE: SceneState = {
       radius: 14,
       mode: 'repel',
       handTracking: false,
+      handPinch: 0,
     },
     audio: {
       enabled: false,

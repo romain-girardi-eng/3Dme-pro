@@ -53,7 +53,7 @@ export const RendererSwitcher = () => {
         turbulence={motion.turbulence}
         rotationSpeed={motion.rotationSpeed}
         enableMouse={mouse.enabled}
-        mouseForce={mouse.force}
+        mouseForce={mouse.force * (mouse.handTracking ? 1 + mouse.handPinch : 1)}
         mouseRadius={mouse.radius}
         forceMode={mouse.mode}
         particleSize={look.particleSize}
