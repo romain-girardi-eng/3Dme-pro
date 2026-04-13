@@ -63,9 +63,9 @@ export const DEFAULT_SCENE_STATE: SceneState = {
     },
     motion: {
       mode: 'float',
-      speed: 0.5,
-      turbulence: 0.1,
-      shapeMemory: 0.8,
+      speed: 0.4,
+      turbulence: 0,
+      shapeMemory: 0.85,
       rotationSpeed: 0.15,
     },
     mouse: {
