@@ -5,8 +5,6 @@ import { createSSEStream, sseHeaders } from './_lib/sse';
 import { generateImages } from './_lib/fal';
 import { imageModelCost } from './_lib/pricing';
 
-export const config = { runtime: 'edge' };
-
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
 

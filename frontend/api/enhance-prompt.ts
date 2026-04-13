@@ -4,8 +4,6 @@ import { EnhancePromptSchema } from './_lib/zod-schemas';
 import { getEnv } from './_lib/env';
 import { rateLimit, getClientIp } from './_lib/rate-limit';
 
-export const config = { runtime: 'edge' };
-
 const ENHANCER_SYSTEM = `You rewrite short user prompts into vivid, detailed image-generation prompts.
 Keep under 80 words. Add lighting, composition, camera, mood, and style. Never add signatures or watermarks.
 Return ONLY the rewritten prompt — no preamble, no quotes.`;
