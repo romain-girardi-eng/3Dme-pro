@@ -5,6 +5,8 @@ import { createSSEStream, sseHeaders } from './_lib/sse';
 import { generateImages } from './_lib/fal';
 import { imageModelCost } from './_lib/pricing';
 
+export const config = { runtime: 'edge' };
+
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
 
@@ -25,17 +27,27 @@ export default async function handler(req: Request): Promise<Response> {
     return Response.json({ error: 'validation', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const env = getEnv();
+  let env;
+  try {
+    env = getEnv();
+  } catch (err) {
+    return Response.json({ error: 'missing_env', message: (err as Error).message }, { status: 500 });
+  }
+
   const started = Date.now();
   const stream = createSSEStream(async (emit) => {
     emit({ event: 'status', data: { status: 'generating-image' } });
-    const images = await generateImages(env.FAL_API_KEY, parsed.data);
-    emit({ event: 'images', data: { images } });
-    const costUsd = imageModelCost(parsed.data.model, parsed.data.batch);
-    emit({
-      event: 'done',
-      data: { images, elapsedMs: Date.now() - started, costUsd },
-    });
+    try {
+      const images = await generateImages(env.FAL_API_KEY, parsed.data);
+      emit({ event: 'images', data: { images } });
+      const costUsd = imageModelCost(parsed.data.model, parsed.data.batch);
+      emit({
+        event: 'done',
+        data: { images, elapsedMs: Date.now() - started, costUsd },
+      });
+    } catch (err) {
+      emit({ event: 'error', data: { message: (err as Error).message } });
+    }
   });
 
   return new Response(stream, { headers: sseHeaders() });

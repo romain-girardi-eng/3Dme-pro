@@ -81,25 +81,30 @@ export const NumberField = ({
   return (
     <label
       className={cn(
-        'group flex items-center gap-2 h-7 px-2 rounded-sm bg-surface-2 border border-border-subtle hover:border-border cursor-ew-resize select-none',
+        'group flex h-8 items-center justify-between gap-3 rounded-sm border border-border-subtle bg-surface-2 px-2.5 hover:border-border select-none',
         className
       )}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
-      <span className="text-2xs uppercase tracking-wider text-white/40 font-mono">{label}</span>
-      <input
-        aria-label={label}
-        type="text"
-        inputMode="numeric"
-        value={draft}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft(e.target.value)}
-        onBlur={() => commit(draft)}
-        onKeyDown={onKeyDown}
-        className="flex-1 bg-transparent text-right text-sm font-mono tabular-nums text-white outline-none cursor-text"
-      />
-      {suffix && <span className="text-2xs font-mono text-white/40">{suffix}</span>}
+      <span className="cursor-ew-resize text-2xs font-mono uppercase tracking-wider text-white/45 truncate">
+        {label}
+      </span>
+      <div className="flex items-center gap-1">
+        <input
+          aria-label={label}
+          type="text"
+          inputMode="numeric"
+          value={draft}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setDraft(e.target.value)}
+          onBlur={() => commit(draft)}
+          onKeyDown={onKeyDown}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="w-16 cursor-text bg-transparent text-right text-xs font-mono tabular-nums text-white outline-none focus:text-brand-secondary"
+        />
+        {suffix && <span className="text-2xs font-mono text-white/40">{suffix}</span>}
+      </div>
     </label>
   );
 };

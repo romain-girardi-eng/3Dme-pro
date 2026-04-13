@@ -21,7 +21,7 @@ export const QualityLadder = () => {
   const setTier = useSceneStore((s) => s.setTier);
 
   return (
-    <div className="grid grid-cols-3 gap-2">
+    <div className="flex flex-col gap-1">
       {TIERS.map((t) => {
         const active = tier === t.id;
         return (
@@ -30,18 +30,19 @@ export const QualityLadder = () => {
             type="button"
             onClick={() => setTier(t.id)}
             className={cn(
-              'flex flex-col items-start gap-1 rounded-md border p-3 text-left transition-colors duration-fast',
+              'group flex items-center justify-between gap-2 rounded-sm border px-2.5 py-2 text-left transition-colors duration-fast',
               active
-                ? 'border-brand-primary bg-brand-primary/10'
+                ? 'border-brand-primary/60 bg-brand-primary/10'
                 : 'border-border-subtle bg-surface-2 hover:border-border'
             )}
           >
-            <div className="flex w-full items-center justify-between">
-              <span className="text-sm font-semibold text-white">{t.label}</span>
-              <span className="text-2xs font-mono tabular-nums text-white/60">${t.cost.toFixed(3)}</span>
+            <div className="flex min-w-0 flex-col">
+              <span className={cn('text-xs font-semibold', active ? 'text-white' : 'text-white/85')}>{t.label}</span>
+              <span className="text-2xs text-white/45 truncate">{t.model} · ~{t.eta}</span>
             </div>
-            <span className="text-2xs text-white/50">{t.model}</span>
-            <span className="text-2xs text-white/40">~{t.eta}</span>
+            <span className={cn('shrink-0 text-2xs font-mono tabular-nums', active ? 'text-brand-secondary' : 'text-white/55')}>
+              ${t.cost.toFixed(3)}
+            </span>
           </button>
         );
       })}

@@ -1,12 +1,7 @@
-import { fal } from '@fal-ai/client';
 import type { GenerateImageRequest, Generate3DRequest } from './zod-schemas';
 
-let configured = false;
-export const configureFal = (apiKey: string) => {
-  if (configured) return;
-  fal.config({ credentials: apiKey });
-  configured = true;
-};
+const FAL_BASE = 'https://fal.run';
+const FAL_QUEUE = 'https://queue.fal.run';
 
 const FLUX_MODEL_MAP: Record<GenerateImageRequest['model'], string> = {
   'flux-2-turbo': 'fal-ai/flux-2/turbo',
@@ -25,25 +20,44 @@ export interface GeneratedImage {
   seed: number;
 }
 
+interface FalImageResult {
+  images?: Array<{ url: string }>;
+  seed?: number;
+}
+
+const callFal = async <T>(modelId: string, input: Record<string, unknown>, apiKey: string): Promise<T> => {
+  const res = await fetch(`${FAL_BASE}/${modelId}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Key ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`fal.ai ${modelId} ${res.status}: ${errText.slice(0, 400)}`);
+  }
+  return (await res.json()) as T;
+};
+
 export const generateImages = async (
   apiKey: string,
   req: GenerateImageRequest,
 ): Promise<GeneratedImage[]> => {
-  configureFal(apiKey);
   const model = FLUX_MODEL_MAP[req.model];
-  const aspectMap = { '1:1': '1024x1024', '16:9': '1280x720', '9:16': '720x1280' } as const;
-  const imageSize = aspectMap[req.aspectRatio];
-
-  const result = await fal.subscribe(model, {
-    input: {
+  const aspectMap = { '1:1': 'square_hd', '16:9': 'landscape_16_9', '9:16': 'portrait_9_16' } as const;
+  const data = await callFal<FalImageResult>(
+    model,
+    {
       prompt: req.prompt,
-      image_size: imageSize,
+      image_size: aspectMap[req.aspectRatio],
       num_images: req.batch,
+      enable_safety_checker: false,
       ...(req.seed !== undefined ? { seed: req.seed } : {}),
     },
-    logs: false,
-  });
-  const data = (result as { data?: { images?: Array<{ url: string }>; seed?: number } }).data ?? {};
+    apiKey,
+  );
   const images = data.images ?? [];
   const seed = data.seed ?? 0;
   return images.map((img, idx) => ({ url: img.url, seed: seed + idx }));
@@ -54,26 +68,33 @@ export interface Generated3D {
   splatUrl?: string;
 }
 
+interface Fal3DResult {
+  model_mesh?: { url: string };
+  mesh?: { url: string };
+  model_file?: { url: string };
+  splat?: { url: string };
+  gaussian_splat?: { url: string };
+  output?: { url: string };
+}
+
 export const generate3D = async (
   apiKey: string,
   req: Generate3DRequest,
 ): Promise<Generated3D> => {
-  configureFal(apiKey);
   const model = TIER_MODEL_MAP[req.tier];
   const input: Record<string, unknown> = {};
   if (req.imageUrl) input.image_url = req.imageUrl;
   if (req.prompt) input.prompt = req.prompt;
-  const result = await fal.subscribe(model, { input, logs: false });
-  const data = (result as {
-    data?: {
-      model_mesh?: { url: string };
-      mesh?: { url: string };
-      model_file?: { url: string };
-      splat?: { url: string };
-    };
-  }).data ?? {};
+  const data = await callFal<Fal3DResult>(model, input, apiKey);
   return {
-    glbUrl: data.model_mesh?.url ?? data.mesh?.url ?? data.model_file?.url,
-    splatUrl: data.splat?.url,
+    glbUrl: data.model_mesh?.url ?? data.mesh?.url ?? data.model_file?.url ?? data.output?.url,
+    splatUrl: data.splat?.url ?? data.gaussian_splat?.url,
   };
 };
+
+// kept for backward compat with existing imports
+export const configureFal = (_apiKey: string): void => {
+  void _apiKey;
+};
+
+void FAL_QUEUE;
