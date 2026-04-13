@@ -23,6 +23,7 @@ export const DEFAULT_SCENE_STATE: SceneState = {
     mode: 'particles',
     look: {
       quality: 'medium',
+      fallbackShape: 'galaxy',
       particleSize: 1.4,
       colorMode: 'original',
       brightness: 0.85,

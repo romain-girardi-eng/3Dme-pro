@@ -1,6 +1,6 @@
 import { useSceneStore } from '@/stores/sceneStore';
 import { SliderField, Select } from '@/components/ui';
-import type { ColorMode, Quality } from '@/stores/sceneStore.types';
+import type { ColorMode, Quality, FallbackShape } from '@/stores/sceneStore.types';
 
 const Section = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <section className="space-y-2.5">
@@ -12,6 +12,7 @@ const Section = ({ label, children }: { label: string; children: React.ReactNode
 export const LookPanel = () => {
   const look = useSceneStore((s) => s.scene.look);
   const update = useSceneStore((s) => s.updateLook);
+  const hasMesh = useSceneStore((s) => Boolean(s.generation.glbUrl));
 
   return (
     <div className="space-y-5">
@@ -24,6 +25,34 @@ export const LookPanel = () => {
           <option value="medium">Medium — 1M pts</option>
           <option value="high">High — 1.9M pts</option>
         </Select>
+      </Section>
+
+      <Section label="Shape">
+        <Select
+          value={look.fallbackShape}
+          onChange={(e) => update({ fallbackShape: e.target.value as FallbackShape })}
+          disabled={hasMesh}
+        >
+          <option value="galaxy">Galaxy</option>
+          <option value="nebula">Nebula</option>
+          <option value="sphere">Sphere</option>
+          <option value="cube">Cube</option>
+          <option value="torus">Torus</option>
+          <option value="heart">Heart</option>
+          <option value="star">Star</option>
+          <option value="dna">DNA helix</option>
+          <option value="wave">Wave</option>
+          <option value="butterfly">Butterfly</option>
+          <option value="aurora">Aurora</option>
+          <option value="skull">Skull</option>
+          <option value="phoenix">Phoenix</option>
+          <option value="rose">Rose</option>
+        </Select>
+        <p className="text-2xs leading-relaxed text-white/40">
+          {hasMesh
+            ? 'Using generated mesh. Clear generation to pick a shape.'
+            : 'Used until you generate a 3D mesh.'}
+        </p>
       </Section>
 
       <Section label="Color">

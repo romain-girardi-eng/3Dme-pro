@@ -45,7 +45,7 @@ export const RendererSwitcher = () => {
     <div className="relative h-full w-full">
       <UltimateParticles
         pointCloud={pointCloud}
-        shape={pointCloud ? undefined : 'galaxy'}
+        shape={pointCloud ? undefined : look.fallbackShape}
         textureSize={textureSize}
         animationMode={motion.mode}
         animationSpeed={motion.speed}
@@ -63,9 +63,9 @@ export const RendererSwitcher = () => {
         hueShift={look.hueShift}
         shimmerIntensity={look.shimmer}
         customColor={look.customColor}
-        enableBloom={look.bloom > 0}
+        enableBloom
         bloomIntensity={look.bloom}
-        enableTrails={look.trails > 0}
+        enableTrails
         trailLength={look.trails}
         className="h-full w-full"
       />

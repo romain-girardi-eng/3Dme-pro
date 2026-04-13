@@ -32,6 +32,21 @@ export type ColorMode =
 
 export type MouseMode = 'repel' | 'attract' | 'orbit' | 'vortex';
 export type Quality = 'low' | 'medium' | 'high';
+export type FallbackShape =
+  | 'galaxy'
+  | 'nebula'
+  | 'sphere'
+  | 'cube'
+  | 'torus'
+  | 'heart'
+  | 'star'
+  | 'dna'
+  | 'wave'
+  | 'butterfly'
+  | 'aurora'
+  | 'skull'
+  | 'phoenix'
+  | 'rose';
 
 export interface GenerationState {
   prompt: string;
@@ -51,6 +66,7 @@ export interface GenerationState {
 
 export interface LookConfig {
   quality: Quality;        // low=512, medium=1024, high=2048 (texture size)
+  fallbackShape: FallbackShape; // used when no generated mesh is loaded
   particleSize: number;    // 0.5–6
   colorMode: ColorMode;
   brightness: number;      // 0–2
