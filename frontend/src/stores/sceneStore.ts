@@ -43,8 +43,8 @@ export const DEFAULT_SCENE_STATE: SceneState = {
     },
     mouse: {
       enabled: true,
-      force: 0.2,
-      radius: 0.6,
+      force: 0.15,
+      radius: 14,
       mode: 'repel',
     },
     audio: {

@@ -59,16 +59,16 @@ export const MousePanel = () => {
             value={mouse.force}
             onChange={(v) => update({ force: v })}
             min={0}
-            max={2}
-            step={0.02}
+            max={1.5}
+            step={0.01}
           />
           <SliderField
             label="radius"
             value={mouse.radius}
             onChange={(v) => update({ radius: v })}
-            min={0.1}
-            max={3}
-            step={0.05}
+            min={2}
+            max={40}
+            step={0.5}
           />
         </Section>
       )}
