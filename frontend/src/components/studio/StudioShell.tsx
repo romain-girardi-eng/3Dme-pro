@@ -6,6 +6,7 @@ import { CanvasViewport } from './CanvasViewport';
 import { BottomTransport } from './BottomTransport';
 import { CommandPalette } from './CommandPalette';
 import { FileDropZone } from './FileDropZone';
+import { HandTrackingOverlay } from './HandTrackingOverlay';
 import { useUrlHashSync } from '@/hooks/useUrlHashSync';
 import { useKeyboardShortcut } from '@/hooks/useKeyboardShortcut';
 
@@ -40,6 +41,7 @@ export const StudioShell = () => {
       {!fullscreen && <BottomTransport />}
       <CommandPalette />
       <FileDropZone />
+      <HandTrackingOverlay />
     </div>
   );
 };

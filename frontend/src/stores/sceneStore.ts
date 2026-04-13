@@ -1,7 +1,31 @@
 import { create } from 'zustand';
 import { temporal } from 'zundo';
-import type { SceneState, SceneActions } from './sceneStore.types';
+import type { SceneState, SceneActions, HistoryItem } from './sceneStore.types';
 import { encodeState, decodeState } from '@/lib/urlHash';
+
+const HISTORY_KEY = '3dme:history:v1';
+const HISTORY_MAX = 20;
+
+const loadHistory = (): HistoryItem[] => {
+  if (typeof localStorage === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as HistoryItem[]).slice(0, HISTORY_MAX) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveHistory = (items: HistoryItem[]): void => {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_MAX)));
+  } catch {
+    /* quota exceeded — skip */
+  }
+};
 
 export const DEFAULT_SCENE_STATE: SceneState = {
   generation: {
@@ -46,6 +70,7 @@ export const DEFAULT_SCENE_STATE: SceneState = {
       force: 0.15,
       radius: 14,
       mode: 'repel',
+      handTracking: false,
     },
     audio: {
       enabled: false,
@@ -54,11 +79,13 @@ export const DEFAULT_SCENE_STATE: SceneState = {
     },
   },
   audioLevels: { bass: 0, mid: 0, treble: 0 },
+  history: [],
 };
 
 export const useSceneStore = create<SceneState & SceneActions>()(
   temporal((set, get) => ({
     ...DEFAULT_SCENE_STATE,
+    history: loadHistory(),
 
     setPrompt: (prompt) => set((s) => ({ generation: { ...s.generation, prompt } })),
     setEnhancedPrompt: (enhancedPrompt) =>
@@ -99,7 +126,35 @@ export const useSceneStore = create<SceneState & SceneActions>()(
       set((s) => ({ scene: { ...s.scene, audio: { ...s.scene.audio, ...patch } } })),
     setAudioLevels: (audioLevels) => set({ audioLevels }),
 
-    resetScene: () => set(DEFAULT_SCENE_STATE),
+    pushHistory: (item) => {
+      const next = [item, ...get().history.filter((h) => h.id !== item.id)].slice(0, HISTORY_MAX);
+      saveHistory(next);
+      set({ history: next });
+    },
+    loadHistoryItem: (id) => {
+      const item = get().history.find((h) => h.id === id);
+      if (!item) return;
+      set((s) => ({
+        generation: {
+          ...s.generation,
+          prompt: item.prompt,
+          tier: item.tier,
+          glbUrl: item.glbUrl,
+          splatUrl: item.splatUrl,
+          variants: item.thumbnailUrl ? [{ url: item.thumbnailUrl, seed: 0 }] : [],
+          selectedVariantIdx: item.thumbnailUrl ? 0 : null,
+          status: item.glbUrl ? 'ready' : 'idle',
+          error: null,
+        },
+      }));
+    },
+    removeHistoryItem: (id) => {
+      const next = get().history.filter((h) => h.id !== id);
+      saveHistory(next);
+      set({ history: next });
+    },
+
+    resetScene: () => set({ ...DEFAULT_SCENE_STATE, history: get().history }),
 
     toHash: () => {
       const { generation, scene } = get();

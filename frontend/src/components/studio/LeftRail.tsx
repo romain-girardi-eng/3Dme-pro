@@ -4,7 +4,7 @@ import { LibraryPanel } from './panels/LibraryPanel';
 import { AIPanel } from './panels/AIPanel';
 
 export const LeftRail = () => (
-  <aside className="hidden md:flex w-[320px] shrink-0 flex-col border-r border-border-subtle bg-surface-1 backdrop-blur-md">
+  <aside className="hidden md:flex w-[340px] shrink-0 flex-col border-r border-border-subtle bg-surface-1 backdrop-blur-md">
     <Tabs defaultValue="create" className="flex h-full flex-col">
       <TabsList className="m-2">
         <TabsTrigger value="create">Create</TabsTrigger>

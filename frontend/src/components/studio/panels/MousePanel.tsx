@@ -41,6 +41,17 @@ export const MousePanel = () => {
         <Toggle checked={mouse.enabled} onChange={(v) => update({ enabled: v })}>
           Mouse hover force
         </Toggle>
+        <Toggle
+          checked={mouse.handTracking}
+          onChange={(v) => update({ handTracking: v, enabled: v ? true : mouse.enabled })}
+        >
+          Hand tracking (webcam)
+        </Toggle>
+        {mouse.handTracking && (
+          <p className="text-2xs leading-relaxed text-white/45">
+            Move your index finger to steer the force. Pinch thumb + index to intensify it.
+          </p>
+        )}
       </Section>
 
       {mouse.enabled && (

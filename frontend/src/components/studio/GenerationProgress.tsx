@@ -45,29 +45,33 @@ export const GenerationProgress = () => {
   ];
 
   return (
-    <div className="flex items-center gap-3 rounded-md border border-border-subtle bg-surface-1 px-4 py-2">
-      {steps.map((s, idx) => (
-        <div key={s.id} className="flex items-center gap-2">
+    <div className="flex w-full flex-col gap-1.5 rounded-md border border-border-subtle bg-surface-1 px-3 py-2.5">
+      {steps.map((s) => (
+        <div key={s.id} className="flex items-center gap-2.5">
           <div
             className={cn(
-              'flex h-6 w-6 items-center justify-center rounded-full border',
+              'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border',
               s.state === 'active' && 'border-brand-primary text-brand-primary',
               s.state === 'done' && 'border-signal-success text-signal-success',
-              s.state === 'pending' && 'border-border-subtle text-white/30'
+              s.state === 'pending' && 'border-border-subtle text-white/30',
             )}
           >
             {s.state === 'active' ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="h-3 w-3 animate-spin" />
             ) : s.state === 'done' ? (
-              <Check className="h-3.5 w-3.5" />
+              <Check className="h-3 w-3" />
             ) : (
               s.icon
             )}
           </div>
-          <span className={cn('text-xs', s.state === 'pending' ? 'text-white/30' : 'text-white/80')}>
+          <span
+            className={cn(
+              'text-xs truncate',
+              s.state === 'pending' ? 'text-white/30' : s.state === 'active' ? 'text-brand-primary' : 'text-white/70',
+            )}
+          >
             {s.label}
           </span>
-          {idx < steps.length - 1 && <span className="h-px w-4 bg-border" />}
         </div>
       ))}
     </div>

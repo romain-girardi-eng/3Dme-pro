@@ -1,4 +1,7 @@
+import { useRef, type ChangeEvent } from 'react';
+import { Upload } from 'lucide-react';
 import { useSceneStore } from '@/stores/sceneStore';
+import { useAssetIntake } from '@/hooks/useAssetIntake';
 import { PromptBar } from '../PromptBar';
 import { QualityLadder } from '../generation/QualityLadder';
 import { VariantPicker } from '../generation/VariantPicker';
@@ -27,13 +30,39 @@ export const AIPanel = () => {
   const status = useSceneStore((s) => s.generation.status);
   const variants = useSceneStore((s) => s.generation.variants);
   const error = useSceneStore((s) => s.generation.error);
+  const intake = useAssetIntake();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const showProgress = status !== 'idle' || variants.length > 0;
+
+  const onFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) void intake(file);
+    e.target.value = '';
+  };
 
   return (
     <div className="space-y-5">
       <Section label="Prompt">
         <PromptBar size="sm" />
+      </Section>
+
+      <Section label="Or upload">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="flex w-full items-center justify-center gap-2 rounded-sm border border-dashed border-border bg-surface-2 px-3 py-2 text-xs text-white/70 transition-colors duration-fast hover:border-brand-primary/60 hover:text-white"
+        >
+          <Upload className="h-3.5 w-3.5" />
+          Upload image or .glb / .gltf
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*,.heic,.glb,.gltf"
+          onChange={onFile}
+          className="hidden"
+        />
       </Section>
 
       <Section label="Presets">
@@ -43,7 +72,7 @@ export const AIPanel = () => {
               key={p}
               type="button"
               onClick={() => setPrompt(p)}
-              className="rounded-full border border-border-subtle bg-surface-2 px-2.5 py-1 text-2xs text-white/65 hover:border-border hover:text-white transition-colors duration-fast"
+              className="rounded-full border border-border-subtle bg-surface-2 px-2.5 py-1 text-2xs text-white/65 transition-colors duration-fast hover:border-border hover:text-white"
             >
               {p}
             </button>
@@ -63,7 +92,7 @@ export const AIPanel = () => {
 
       {enhanced && (
         <Section label="Enhanced prompt">
-          <p className="text-xs leading-relaxed text-white/60 rounded-sm border border-border-subtle bg-surface-2/60 p-2">
+          <p className="rounded-sm border border-border-subtle bg-surface-2/60 p-2 text-xs leading-relaxed text-white/60">
             {enhanced}
           </p>
         </Section>

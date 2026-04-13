@@ -10,6 +10,7 @@ export const useGenerationFlow = () => {
   const selectVariant = useSceneStore((s) => s.selectVariant);
   const setAssets = useSceneStore((s) => s.setAssets);
   const setCost = useSceneStore((s) => s.setCost);
+  const pushHistory = useSceneStore((s) => s.pushHistory);
 
   const runImageStage = useCallback(async () => {
     const { generation } = useSceneStore.getState();
@@ -73,9 +74,13 @@ export const useGenerationFlow = () => {
         tier: generation.tier,
         outputs: ['glb', 'splat'],
       });
+      let glb: string | null = null;
+      let splat: string | null = null;
       for await (const evt of stream) {
         if (evt.type === 'done') {
-          setAssets({ glbUrl: evt.glbUrl ?? null, splatUrl: evt.splatUrl ?? null });
+          glb = evt.glbUrl ?? null;
+          splat = evt.splatUrl ?? null;
+          setAssets({ glbUrl: glb, splatUrl: splat });
           setCost(generation.costUsd + (evt.costUsd ?? 0));
         } else if (evt.type === 'error') {
           throw new Error(evt.error ?? '3D generation error');
@@ -83,11 +88,23 @@ export const useGenerationFlow = () => {
       }
       setStatus('ready');
       toast.success('Scene ready');
+      if (glb || splat) {
+        pushHistory({
+          id: `gen-${Date.now()}`,
+          prompt: generation.prompt,
+          thumbnailUrl: variant.url,
+          glbUrl: glb,
+          splatUrl: splat,
+          tier: generation.tier,
+          source: 'generated',
+          createdAt: Date.now(),
+        });
+      }
     } catch (err) {
       setStatus('error', (err as Error).message);
       toast.error('3D generation failed');
     }
-  }, [setStatus, setAssets, setCost]);
+  }, [setStatus, setAssets, setCost, pushHistory]);
 
   return { runImageStage, runThreeDStage };
 };

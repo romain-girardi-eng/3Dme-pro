@@ -91,6 +91,7 @@ export interface MouseConfig {
   force: number;           // 0–2
   radius: number;          // 0–3
   mode: MouseMode;
+  handTracking: boolean;   // use webcam hand landmarks instead of mouse
 }
 
 export interface AudioLevels {
@@ -113,10 +114,22 @@ export interface SceneConfig {
   audio: AudioConfig;
 }
 
+export interface HistoryItem {
+  id: string;
+  prompt: string;
+  thumbnailUrl: string | null;
+  glbUrl: string | null;
+  splatUrl: string | null;
+  tier: QualityTier;
+  source: 'generated' | 'uploaded';
+  createdAt: number;
+}
+
 export interface SceneState {
   generation: GenerationState;
   scene: SceneConfig;
   audioLevels: AudioLevels;
+  history: HistoryItem[];
 }
 
 export interface SceneActions {
@@ -137,6 +150,9 @@ export interface SceneActions {
   updateMouse: (patch: Partial<MouseConfig>) => void;
   updateAudio: (patch: Partial<AudioConfig>) => void;
   setAudioLevels: (levels: AudioLevels) => void;
+  pushHistory: (item: HistoryItem) => void;
+  loadHistoryItem: (id: string) => void;
+  removeHistoryItem: (id: string) => void;
   resetScene: () => void;
   hydrateFromHash: (hash: string) => boolean;
   toHash: () => string;
