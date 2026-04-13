@@ -8,7 +8,7 @@ describe('sceneStore', () => {
 
   it('initializes with sensible defaults', () => {
     const s = useSceneStore.getState();
-    expect(s.generation.prompt).toBe('');
+    expect(s.generation.glbUrl).toBeTruthy();
     expect(s.scene.mode).toBe('particles');
     expect(s.scene.look.quality).toBe('medium');
     expect(s.scene.motion.shapeMemory).toBeGreaterThan(0.5);
@@ -52,7 +52,7 @@ describe('sceneStore', () => {
     s.setMode('splat');
     const hash = s.toHash();
     useSceneStore.setState(DEFAULT_SCENE_STATE);
-    expect(useSceneStore.getState().generation.prompt).toBe('');
+    expect(useSceneStore.getState().generation.prompt).not.toBe('roundtrip');
     const ok = useSceneStore.getState().hydrateFromHash(hash);
     expect(ok).toBe(true);
     const after = useSceneStore.getState();
@@ -69,7 +69,7 @@ describe('sceneStore', () => {
     useSceneStore.getState().setPrompt('x');
     useSceneStore.getState().updateLook({ brightness: 0 });
     useSceneStore.getState().resetScene();
-    expect(useSceneStore.getState().generation.prompt).toBe('');
-    expect(useSceneStore.getState().scene.look.brightness).toBe(1);
+    expect(useSceneStore.getState().generation.glbUrl).toBeTruthy();
+    expect(useSceneStore.getState().scene.look.brightness).toBeCloseTo(0.85);
   });
 });

@@ -27,19 +27,22 @@ const saveHistory = (items: HistoryItem[]): void => {
   }
 };
 
+const DEFAULT_GLB = '/default-fish.glb';
+const DEFAULT_THUMB = '/default-fish.png';
+
 export const DEFAULT_SCENE_STATE: SceneState = {
   generation: {
-    prompt: '',
+    prompt: 'Friendly goldfish',
     enhancedPrompt: null,
     enhancerEnabled: false,
     imageModel: 'flux-2-turbo',
     tier: 'fast',
     loraStyle: 'none',
-    variants: [],
-    selectedVariantIdx: null,
-    glbUrl: null,
+    variants: [{ url: DEFAULT_THUMB, seed: 0 }],
+    selectedVariantIdx: 0,
+    glbUrl: DEFAULT_GLB,
     splatUrl: null,
-    status: 'idle',
+    status: 'ready',
     error: null,
     costUsd: 0,
   },
