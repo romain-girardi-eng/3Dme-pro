@@ -12,3 +12,4 @@ dist
 assets/glb/
 *.glb
 !frontend/src/**/*.glb
+!frontend/public/**/*.glb
