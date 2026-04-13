@@ -3,6 +3,7 @@ export { IconButton, type IconButtonProps } from './IconButton';
 export { Panel, type PanelProps } from './Panel';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 export { Slider } from './Slider';
+export { SliderField, type SliderFieldProps } from './SliderField';
 export { NumberField, type NumberFieldProps } from './NumberField';
 export { Input } from './Input';
 export { Textarea } from './Textarea';
