@@ -1,4 +1,4 @@
-export type RenderMode = 'splat' | 'particles';
+export type RenderMode = 'particles' | 'mesh' | 'splat';
 export type QualityTier = 'fast' | 'balanced' | 'pro';
 export type ImageModel = 'flux-2-turbo' | 'flux-2-pro' | 'flux-2-dev';
 export type LoraStyle =

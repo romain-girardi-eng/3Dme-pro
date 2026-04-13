@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useSceneStore } from '@/stores/sceneStore';
 import { SplatRenderer } from './SplatRenderer';
+import { MeshRenderer } from './MeshRenderer';
 import { UltimateParticles } from '@/components/particles/UltimateParticles';
 import { useGlbPointCloud } from '@/hooks/useGlbPointCloud';
 import type { Quality } from '@/stores/sceneStore.types';
@@ -36,6 +37,10 @@ export const RendererSwitcher = () => {
     if (pointCloud) return `${pointCloud.count.toLocaleString()} points from generated mesh`;
     return null;
   }, [loading, error, pointCloud]);
+
+  if (mode === 'mesh' && glbUrl) {
+    return <MeshRenderer url={glbUrl} className="h-full w-full" />;
+  }
 
   if (mode === 'splat' && splatUrl) {
     return <SplatRenderer url={splatUrl} className="h-full w-full" />;
