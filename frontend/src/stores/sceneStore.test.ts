@@ -6,11 +6,14 @@ describe('sceneStore', () => {
     useSceneStore.setState(DEFAULT_SCENE_STATE);
   });
 
-  it('initializes with defaults', () => {
+  it('initializes with sensible defaults', () => {
     const s = useSceneStore.getState();
     expect(s.generation.prompt).toBe('');
     expect(s.scene.mode).toBe('particles');
-    expect(s.scene.particles.count).toBeGreaterThan(0);
+    expect(s.scene.look.quality).toBe('medium');
+    expect(s.scene.motion.shapeMemory).toBeGreaterThan(0.5);
+    expect(s.scene.mouse.enabled).toBe(true);
+    expect(s.scene.mouse.force).toBeLessThan(0.5);
   });
 
   it('setPrompt updates prompt', () => {
@@ -18,11 +21,23 @@ describe('sceneStore', () => {
     expect(useSceneStore.getState().generation.prompt).toBe('a cat');
   });
 
-  it('updateParticles patches particle config', () => {
-    useSceneStore.getState().updateParticles({ count: 100000, size: 3 });
-    const p = useSceneStore.getState().scene.particles;
-    expect(p.count).toBe(100000);
-    expect(p.size).toBe(3);
+  it('updateLook patches look config', () => {
+    useSceneStore.getState().updateLook({ brightness: 1.5, saturation: 0.8 });
+    const l = useSceneStore.getState().scene.look;
+    expect(l.brightness).toBe(1.5);
+    expect(l.saturation).toBe(0.8);
+  });
+
+  it('updateMotion patches motion config', () => {
+    useSceneStore.getState().updateMotion({ shapeMemory: 0.5 });
+    expect(useSceneStore.getState().scene.motion.shapeMemory).toBe(0.5);
+  });
+
+  it('updateMouse patches mouse config', () => {
+    useSceneStore.getState().updateMouse({ force: 0.9, mode: 'attract' });
+    const m = useSceneStore.getState().scene.mouse;
+    expect(m.force).toBe(0.9);
+    expect(m.mode).toBe('attract');
   });
 
   it('setMode switches render mode', () => {
@@ -33,7 +48,7 @@ describe('sceneStore', () => {
   it('toHash() and hydrateFromHash() round-trip scene state', () => {
     const s = useSceneStore.getState();
     s.setPrompt('roundtrip');
-    s.updateParticles({ count: 42000 });
+    s.updateLook({ brightness: 1.42 });
     s.setMode('splat');
     const hash = s.toHash();
     useSceneStore.setState(DEFAULT_SCENE_STATE);
@@ -42,7 +57,7 @@ describe('sceneStore', () => {
     expect(ok).toBe(true);
     const after = useSceneStore.getState();
     expect(after.generation.prompt).toBe('roundtrip');
-    expect(after.scene.particles.count).toBe(42000);
+    expect(after.scene.look.brightness).toBe(1.42);
     expect(after.scene.mode).toBe('splat');
   });
 
@@ -52,7 +67,9 @@ describe('sceneStore', () => {
 
   it('resetScene restores defaults', () => {
     useSceneStore.getState().setPrompt('x');
+    useSceneStore.getState().updateLook({ brightness: 0 });
     useSceneStore.getState().resetScene();
     expect(useSceneStore.getState().generation.prompt).toBe('');
+    expect(useSceneStore.getState().scene.look.brightness).toBe(1);
   });
 });

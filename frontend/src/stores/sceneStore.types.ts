@@ -9,6 +9,30 @@ export type LoraStyle =
   | 'vaporwave'
   | 'studio-photo';
 
+export type AnimationMode =
+  | 'none'
+  | 'float'
+  | 'wave'
+  | 'vortex'
+  | 'turbulence'
+  | 'magnetic'
+  | 'lorenz'
+  | 'aizawa';
+
+export type ColorMode =
+  | 'original'
+  | 'rainbow'
+  | 'ocean'
+  | 'sunset'
+  | 'neon'
+  | 'fire'
+  | 'matrix'
+  | 'velocity'
+  | 'custom';
+
+export type MouseMode = 'repel' | 'attract' | 'orbit' | 'vortex';
+export type Quality = 'low' | 'medium' | 'high';
+
 export interface GenerationState {
   prompt: string;
   enhancedPrompt: string | null;
@@ -25,38 +49,32 @@ export interface GenerationState {
   costUsd: number;
 }
 
-export interface ParticleConfig {
-  count: number;
-  size: number;
-  shape: 'sphere' | 'galaxy' | 'star' | 'mesh';
-  colorMode: 'image' | 'gradient' | 'solid';
-  solidColor: string;
+export interface LookConfig {
+  quality: Quality;        // low=512, medium=1024, high=2048 (texture size)
+  particleSize: number;    // 0.5–6
+  colorMode: ColorMode;
+  brightness: number;      // 0–2
+  saturation: number;      // 0–2
+  hueShift: number;        // -180–180
+  shimmer: number;         // 0–1
+  bloom: number;           // 0–2
+  trails: number;          // 0–1
+  customColor: string;
 }
 
-export interface MaterialConfig {
-  exposure: number;
-  splatScale: number;
-  opacityCutoff: number;
-  emissive: number;
-  fresnel: number;
-  brightness: number;
-  saturation: number;
-  hueShift: number;
-  rotationSpeed: number;
+export interface MotionConfig {
+  mode: AnimationMode;
+  speed: number;           // 0–3
+  turbulence: number;      // 0–1
+  shapeMemory: number;     // 0–1 — how strongly particles snap back to source shape (returnForce)
+  rotationSpeed: number;   // 0–2
 }
 
-export interface PhysicsConfig {
-  mouseGravity: number;
-  mouseRadius: number;
-  turbulence: number;
-  attractor: 'none' | 'lorenz' | 'aizawa' | 'chen';
-}
-
-export interface PostConfig {
-  bloom: number;
-  dof: boolean;
-  chromaticAberration: number;
-  vignette: number;
+export interface MouseConfig {
+  enabled: boolean;
+  force: number;           // 0–2
+  radius: number;          // 0–3
+  mode: MouseMode;
 }
 
 export interface AudioLevels {
@@ -69,17 +87,13 @@ export interface AudioConfig {
   enabled: boolean;
   source: 'mic' | 'file' | 'demo';
   sensitivity: number;
-  bassToColor: boolean;
-  midToTurbulence: boolean;
-  trebleToBurst: boolean;
 }
 
 export interface SceneConfig {
   mode: RenderMode;
-  particles: ParticleConfig;
-  material: MaterialConfig;
-  physics: PhysicsConfig;
-  post: PostConfig;
+  look: LookConfig;
+  motion: MotionConfig;
+  mouse: MouseConfig;
   audio: AudioConfig;
 }
 
@@ -102,10 +116,9 @@ export interface SceneActions {
   setStatus: (s: GenerationState['status'], error?: string | null) => void;
   setCost: (usd: number) => void;
   setMode: (mode: RenderMode) => void;
-  updateParticles: (patch: Partial<ParticleConfig>) => void;
-  updateMaterial: (patch: Partial<MaterialConfig>) => void;
-  updatePhysics: (patch: Partial<PhysicsConfig>) => void;
-  updatePost: (patch: Partial<PostConfig>) => void;
+  updateLook: (patch: Partial<LookConfig>) => void;
+  updateMotion: (patch: Partial<MotionConfig>) => void;
+  updateMouse: (patch: Partial<MouseConfig>) => void;
   updateAudio: (patch: Partial<AudioConfig>) => void;
   setAudioLevels: (levels: AudioLevels) => void;
   resetScene: () => void;

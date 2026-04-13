@@ -13,8 +13,8 @@ export default function DevUIPage() {
   const [apiLoading, setApiLoading] = useState(false);
   const prompt = useSceneStore((s) => s.generation.prompt);
   const setPrompt = useSceneStore((s) => s.setPrompt);
-  const particles = useSceneStore((s) => s.scene.particles);
-  const updateParticles = useSceneStore((s) => s.updateParticles);
+  const look = useSceneStore((s) => s.scene.look);
+  const updateLook = useSceneStore((s) => s.updateLook);
   const toHash = useSceneStore((s) => s.toHash);
 
   const testEnhance = async () => {
@@ -78,20 +78,19 @@ export default function DevUIPage() {
           <div className="space-y-4 max-w-sm">
             <Slider value={sliderVal} onValueChange={setSliderVal} min={0} max={100} />
             <NumberField
-              label="count"
-              value={particles.count}
-              onChange={(v) => updateParticles({ count: v })}
-              min={1000}
-              max={2_000_000}
-              step={1000}
-              suffix="pts"
+              label="brightness"
+              value={look.brightness}
+              onChange={(v) => updateLook({ brightness: v })}
+              min={0}
+              max={2}
+              step={0.05}
             />
             <NumberField
               label="size"
-              value={particles.size}
-              onChange={(v) => updateParticles({ size: v })}
-              min={0.1}
-              max={10}
+              value={look.particleSize}
+              onChange={(v) => updateLook({ particleSize: v })}
+              min={0.5}
+              max={8}
               step={0.1}
             />
           </div>
@@ -120,7 +119,7 @@ export default function DevUIPage() {
         <Panel title="Store → URL hash">
           <div className="space-y-3 text-sm">
             <div className="text-white/70">Prompt in store: <span className="font-mono text-white">{prompt || '(empty)'}</span></div>
-            <div className="text-white/70">Particles count: <span className="font-mono text-white">{particles.count.toLocaleString()}</span></div>
+            <div className="text-white/70">Quality: <span className="font-mono text-white">{look.quality}</span></div>
             <div className="text-white/70 break-all">
               Hash: <span className="font-mono text-2xs text-brand-secondary">{toHash().slice(0, 120)}…</span>
             </div>

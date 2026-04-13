@@ -7,7 +7,7 @@ export const DEFAULT_SCENE_STATE: SceneState = {
   generation: {
     prompt: '',
     enhancedPrompt: null,
-    enhancerEnabled: true,
+    enhancerEnabled: false,
     imageModel: 'flux-2-turbo',
     tier: 'fast',
     loraStyle: 'none',
@@ -21,43 +21,35 @@ export const DEFAULT_SCENE_STATE: SceneState = {
   },
   scene: {
     mode: 'particles',
-    particles: {
-      count: 500000,
-      size: 2,
-      shape: 'mesh',
-      colorMode: 'image',
-      solidColor: '#8b5cf6',
-    },
-    material: {
-      exposure: 1,
-      splatScale: 1,
-      opacityCutoff: 0.02,
-      emissive: 0,
-      fresnel: 0.3,
+    look: {
+      quality: 'medium',
+      particleSize: 2,
+      colorMode: 'original',
       brightness: 1,
       saturation: 1,
       hueShift: 0,
-      rotationSpeed: 0.2,
+      shimmer: 0.3,
+      bloom: 0.6,
+      trails: 0,
+      customColor: '#8b5cf6',
     },
-    physics: {
-      mouseGravity: 0.5,
-      mouseRadius: 1.5,
-      turbulence: 0.2,
-      attractor: 'none',
+    motion: {
+      mode: 'float',
+      speed: 0.5,
+      turbulence: 0.1,
+      shapeMemory: 0.8,
+      rotationSpeed: 0.15,
     },
-    post: {
-      bloom: 0.4,
-      dof: false,
-      chromaticAberration: 0.02,
-      vignette: 0.25,
+    mouse: {
+      enabled: true,
+      force: 0.2,
+      radius: 0.6,
+      mode: 'repel',
     },
     audio: {
       enabled: false,
       source: 'mic',
       sensitivity: 0.5,
-      bassToColor: true,
-      midToTurbulence: true,
-      trebleToBurst: false,
     },
   },
   audioLevels: { bass: 0, mid: 0, treble: 0 },
@@ -67,8 +59,7 @@ export const useSceneStore = create<SceneState & SceneActions>()(
   temporal((set, get) => ({
     ...DEFAULT_SCENE_STATE,
 
-    setPrompt: (prompt) =>
-      set((s) => ({ generation: { ...s.generation, prompt } })),
+    setPrompt: (prompt) => set((s) => ({ generation: { ...s.generation, prompt } })),
     setEnhancedPrompt: (enhancedPrompt) =>
       set((s) => ({ generation: { ...s.generation, enhancedPrompt } })),
     toggleEnhancer: () =>
@@ -77,8 +68,7 @@ export const useSceneStore = create<SceneState & SceneActions>()(
       })),
     setImageModel: (imageModel) =>
       set((s) => ({ generation: { ...s.generation, imageModel } })),
-    setTier: (tier) =>
-      set((s) => ({ generation: { ...s.generation, tier } })),
+    setTier: (tier) => set((s) => ({ generation: { ...s.generation, tier } })),
     setLoraStyle: (loraStyle) =>
       set((s) => ({ generation: { ...s.generation, loraStyle } })),
     setVariants: (variants) =>
@@ -95,19 +85,15 @@ export const useSceneStore = create<SceneState & SceneActions>()(
       })),
     setStatus: (status, error = null) =>
       set((s) => ({ generation: { ...s.generation, status, error } })),
-    setCost: (costUsd) =>
-      set((s) => ({ generation: { ...s.generation, costUsd } })),
+    setCost: (costUsd) => set((s) => ({ generation: { ...s.generation, costUsd } })),
 
-    setMode: (mode) =>
-      set((s) => ({ scene: { ...s.scene, mode } })),
-    updateParticles: (patch) =>
-      set((s) => ({ scene: { ...s.scene, particles: { ...s.scene.particles, ...patch } } })),
-    updateMaterial: (patch) =>
-      set((s) => ({ scene: { ...s.scene, material: { ...s.scene.material, ...patch } } })),
-    updatePhysics: (patch) =>
-      set((s) => ({ scene: { ...s.scene, physics: { ...s.scene.physics, ...patch } } })),
-    updatePost: (patch) =>
-      set((s) => ({ scene: { ...s.scene, post: { ...s.scene.post, ...patch } } })),
+    setMode: (mode) => set((s) => ({ scene: { ...s.scene, mode } })),
+    updateLook: (patch) =>
+      set((s) => ({ scene: { ...s.scene, look: { ...s.scene.look, ...patch } } })),
+    updateMotion: (patch) =>
+      set((s) => ({ scene: { ...s.scene, motion: { ...s.scene.motion, ...patch } } })),
+    updateMouse: (patch) =>
+      set((s) => ({ scene: { ...s.scene, mouse: { ...s.scene.mouse, ...patch } } })),
     updateAudio: (patch) =>
       set((s) => ({ scene: { ...s.scene, audio: { ...s.scene.audio, ...patch } } })),
     setAudioLevels: (audioLevels) => set({ audioLevels }),
@@ -124,5 +110,5 @@ export const useSceneStore = create<SceneState & SceneActions>()(
       set({ generation: decoded.generation, scene: decoded.scene });
       return true;
     },
-  }))
+  })),
 );
